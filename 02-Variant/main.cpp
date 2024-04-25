@@ -15,12 +15,12 @@ public:
     Variant(int64_t val)            : type(Type::INT64)  { value.i = val; }
     Variant(bool val)               : type(Type::BOOL)   { value.b = val; }
     Variant(const void*) = delete;
-    // CTOR_EXTRA
+    // CTOR-EXTRA
     Variant& operator=(Variant&& other) {
         if (this == &other)
             return *this;
         if (other.type == Type::STRING) { 
-            if (type == Type::STRING)
+            if (type != Type::STRING)
                 new (&value.s) std::string(std::move(other.value.s));
             else
                 value.s = std::move(other.value.s);

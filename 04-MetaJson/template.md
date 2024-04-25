@@ -1,11 +1,11 @@
 # La Metaprogrammation
 
-La metaprogrammation en C++ nous permet de spécialiser nos templates à l'aide de charactéristiques communes appelés `traits`.
+La metaprogrammation en C++ nous permet de spécialiser nos templates à l'aide de caractéristiques communes appelés `traits`.
 
 
 La bibliothèque standard en contiens un certain nombre (`is_same`, `is_arithmetic`, ...) mais pour nos besoins, nous allons définir `is_string`, `is_pair` et `is_collection`.
 
-Une lsite exhaustive de la bibliothèque standard est disponible sur le site [cppreference.com/meta](https://en.cppreference.com/w/cpp/meta)
+Une liste exhaustive de la bibliothèque standard est disponible sur le site [cppreference.com/meta](https://en.cppreference.com/w/cpp/meta)
 
 ## C++14
 
@@ -39,7 +39,7 @@ L'ajout des `concepts` en C++20 permet de simplifier grandement la définition d
 
 ## Les collections
 
-Pour les collections, nous verrifions que la structure contiens un `iterator`. Les collections user-defined sont ainsi gérées.
+Pour les collections, nous vérifions que la structure contiens un `iterator`. Les collections user-defined sont ainsi gérées.
 
 ```cpp
 // META-COLLECTION
@@ -72,15 +72,15 @@ Les tests suivants permettent de rapidement savoir quel type sont compatibles av
 
 # Le JSON avec RapidJson
 
-RapidJson est une bibiliothèque déveoppée par Tencent qui permet de manipuler des structures de données JSON en C++.
-La priincipale problématique de cette bibliothèque est qu'elle commence à être un peu datée et n'intègre pas des concepts modernes de la metaprogrammation en C++.
-De ce fait, la bibliothèque ne gère pas la sérialisation/déserialisation des collections de la STL out of the box.
+RapidJson est une bibliothèque développée par Tencent qui permet de manipuler des structures de données JSON en C++.
+La principale problématique de cette bibliothèque est qu'elle commence à être un peu datée et n'intègre pas des concepts modernes de la metaprogrammation en C++.
+De ce fait, la bibliothèque ne gère pas la sérialisation/désérialisation des collections de la STL out of the box.
 
 Nos nouvelles connaissances sur la métaprogrammation peuvent nous permettre d'ajouter facilement ces capacités.
 
 ## SFINAE
 
-Le SFINAE est une technique de metaprogrammation permetant d'établir la  base de notre template.
+Le SFINAE est une technique de métaprogrammation permettant d'établir la  base de notre template.
 Dans notre cas, il nous permet de 3 avantages :
 
 * Définir l'interface de base de notre template;
@@ -139,7 +139,7 @@ TODO
 
 ## JsonTests
 
-Les tests json suivant verifient que la sérialisation puis la déserialisation d'un objet nous renvoient le même résultat.
+Les tests json suivant vérifient que la sérialisation puis la désérialisation d'un objet nous renvoient le même résultat.
 
 ```cpp
 // JSON-TEST

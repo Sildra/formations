@@ -40,29 +40,32 @@ def execute(dirname, command, output):
 
 def process_dir(dirname):
     template = os.path.join(dirname, 'template.md')
-    if os.path.isfile(template):
-        print(f'Creating {dirname}')
-        snippets = {}
-        for sourcename in os.listdir(dirname):
-            if not sourcename.endswith(('.cpp', '.c', '.hpp', '.h')):
-                continue
+    if not os.path.isfile(template):
+        return
+    print(f'Creating {dirname}')
+    snippets = {}
+    for sourcename in os.listdir(dirname):
+        if sourcename.endswith(('.cpp', '.c', '.hpp', '.h')):
             import_snippets(os.path.join(dirname, sourcename), snippets)
-        os.makedirs('formations', exist_ok=True)
-        with open(os.path.join('formations', dirname) + '.md', 'w') as markdown, open(template, 'r') as template:
-            markdown.write('[Sommaire](../README.md)\n\n')
-            for line in template:
-                comment = re.match(r'(\s*)\/\/\s*(\S+)$', line)
-                if comment:
-                    space = comment.group(1)
-                    for snip in snippets[comment.group(2)]:
-                        markdown.write(space + snip + '\n')
-                    continue
-                executor = re.match(r'^> (.*)$', line)
-                if executor:
-                    markdown.write(line)
-                    execute(dirname, executor.group(1), markdown)
-                    continue
+    os.makedirs('formations', exist_ok=True)
+    with open(os.path.join('formations', dirname) + '.md', 'w') as markdown, open(template, 'r') as template:
+        markdown.write('[Sommaire](../README.md)\n\n')
+        for line in template:
+            comment = re.match(r'(\s*)\/\/\s*(\S+)$', line)
+            if comment:
+                space = comment.group(1)
+                for snip in snippets[comment.group(2)]:
+                    markdown.write(space + snip + '\n')
+                continue
+            executor = re.match(r'^> (.*)$', line)
+            if executor:
                 markdown.write(line)
+                execute(dirname, executor.group(1), markdown)
+                continue
+            markdown.write(line)
+    for execname in os.listdir(dirname):
+        if execname.endswith('.exe'):
+            os.remove(os.path.join(dirname, execname))
 
 
 def _parse_args():

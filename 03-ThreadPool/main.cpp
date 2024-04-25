@@ -1,16 +1,11 @@
 #include <iostream>
-#include <mutex>
-#include <thread>
-#include <vector>
-#include <deque>
-#include <condition_variable>
-#include <functional>
-#include <atomic>
 #include <chrono>
 #include <string>
 
-static int global_id = 0;
+#include "thread_pool.h"
 
+// UTILS
+static int global_id = 0;
 const std::string get_id()
 {
     thread_local const std::string id = std::string("Thread ").append(std::to_string(global_id++));
@@ -24,98 +19,69 @@ void display(const std::string& val)
     std::cout << value;
 }
 
-struct ThreadPool final
+void showTime(const std::string& info, std::chrono::high_resolution_clock::time_point& start)
 {
-    using unique_void_function = std::unique_ptr<std::function<void()>>;
-    std::mutex poolMutex;
-    std::mutex collMutex;
-    std::condition_variable waiter;
-    std::vector<std::thread> executors;
-    std::deque<unique_void_function> tasks;
-    bool running = true;
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    std::cout << info << " executed in " << duration << "ms\n";
+}
 
-    ThreadPool(int count)
-    {
-        for (; count > 0; --count) {
-            executors.push_back(std::thread(&ThreadPool::execute, this, std::unique_lock<std::mutex>(poolMutex)));
-        }
-    }
-
-    ~ThreadPool()
-    {
-        running = false;
-        waiter.notify_all();
-        for (auto& executor : executors)
-            executor.join();
-    }
-
-    void execute(std::unique_lock<std::mutex>&& notif)
-    {
-        display("started");
-        while (running) {
-            waiter.wait(notif);
-            notif.unlock();
-            while (auto* f = get_task(notif)) {
-                (*f)();
-                delete f;
-            }
-        }
-        display("stopped\n");
-    }
-
-    std::function<void()>* get_task(std::unique_lock<std::mutex>& notif)
-    {
-        std::lock_guard<std::mutex> lk(collMutex);
-        if (tasks.empty()) {
-            notif.lock();
-            return nullptr;
-        }
-        auto* f = tasks.front().release();
-        tasks.pop_front();
-        return f;
-    }
-
-    template<typename T>
-    void schedule(T&& coll)
-    {
-        std::lock_guard<std::mutex> lk(collMutex);
-        for (auto& f : coll)
-            tasks.push_back(std::make_unique<unique_void_function::element_type>(std::move(f)));
-        waiter.notify_all();
-    }
-};
-
-struct FusionTaskGenerator
+// GENERATOR
+struct TaskGenerator
 {
-    ThreadPool& thread_pool;
+    thread_pool::ThreadPool& thread_pool;
     int generator_count;
-    FusionTaskGenerator(ThreadPool& pool, int generator_count)
+    TaskGenerator(thread_pool::ThreadPool& pool, int generator_count)
         : thread_pool(pool), generator_count(generator_count) {}
 
     void execute()
     {
-        int gc = generator_count;
-        display(std::string("generating ").append(std::to_string(gc)));
-        std::vector<std::function<void()>> generator;
-        for (int i = 1; i < gc; ++i) {
-            generator.push_back([=]() {
-                FusionTaskGenerator(thread_pool, gc - 1).execute();
-            });
-        }
-        thread_pool.schedule(generator);
+        if (generator_count < 1)
+            return;
+        thread_pool::ThreadPool* tp = &thread_pool;
+        int gc = generator_count - 1;
+        std::vector<thread_pool::UniqueTask> generator;
+        generator.reserve(gc);
+        for (int i = 0; i < gc; ++i)
+            generator.push_back(std::make_unique<thread_pool::Task>([=](){ TaskGenerator(*tp, gc).execute(); }));
+        thread_pool.schedule(std::move(generator));
     }
 };
 
+// TESTS
 int main()
 {
     std::cout << "ThreadPool\n";
-    ThreadPool tp(5);
-    auto f1 = std::function<void()>([]() { display("Display()"); });
-    auto f2 = std::function<void()>([]() { display("Display2()"); });
-    tp.schedule(std::vector<std::function<void()>>({ f1, f1, f2, f1, f2, f1 }));
-    auto gen = std::function<void()>([&]() { FusionTaskGenerator(tp, 3).execute(); });
-    tp.schedule(std::vector<std::function<void()>>({ gen }));
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    std::cout << std::endl;
+    {
+        // TEST-CREATION
+        auto now = std::chrono::high_resolution_clock::now();
+        thread_pool::ThreadPool tp(5);
+        showTime("ThreadPool creation", now);
+        // TEST-DISPLAY
+        using namespace std::chrono_literals;
+        auto f1 = thread_pool::Task([]() { display("Display()"); std::this_thread::sleep_for(1ms); });
+        auto f2 = thread_pool::Task([]() { display("Display2()"); std::this_thread::sleep_for(1ms); });
+        std::vector<thread_pool::UniqueTask> displayTasks;
+        for (auto& task : { f1, f1, f1, f2, f1, f2, f1, f1 })
+            displayTasks.push_back(std::make_unique<thread_pool::Task>(task));
+        tp.schedule(std::move(displayTasks));
+        std::this_thread::sleep_for(15ms);
+        // TEST-GENERATOR
+        constexpr int operation_count = 10;
+        now = std::chrono::high_resolution_clock::now();
+        tp.schedule(std::make_unique<thread_pool::Task>([&]() { TaskGenerator(tp, operation_count).execute(); }));
+        while (tp.execute())
+            ;
+        // Compute the number of operations
+        int acc = 1;
+        int tot = 1;
+        for (int  i = operation_count - 1; i > 0; --i) {
+            acc *= i;
+            tot += acc;
+        }
+        showTime(std::to_string(tot) + " tasks", now);
+        // END
+    }
+    std::cout << "End ThreadPool\n";
     return 0;
 }
