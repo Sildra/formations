@@ -28,6 +28,8 @@ def import_snippets(sourcepath, snippets):
         for line in range(len(value)):
             if len(value[line]):
                 value[line] = value[line][leading_spaces:]
+        if not len(value[-1].strip()):
+            value.pop()
 
 
 def execute(dirname, command, output):

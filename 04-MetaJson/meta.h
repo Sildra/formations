@@ -75,6 +75,20 @@ struct is_pair_collection {
 };
 template<typename T>
 static constexpr bool is_pair_collection_v = is_pair_collection<T>::value;
+// META-SMARTPTR
+template<typename T>
+struct is_smartptr {
+    template<typename A>
+    static constexpr bool test(A* pt, decltype(pt->operator->())* = nullptr) {
+        return true;
+    }
+    template<typename A>
+    static constexpr bool test(...) { return false; }
+    static constexpr bool value = test<typename std::decay<T>::type>(nullptr);
+};
+template<typename T>
+static constexpr bool is_smartptr_v = is_smartptr<T>::value;
+
 // END
 #ifdef META_TEST
 #include <iostream>
@@ -89,6 +103,7 @@ void meta(std::string description)
         << "\t" << is_basic_string_v<T>
         << "\t" << is_pair_v<T>
         << "\t" << is_collection_v<T>
+        << "\t" << is_smartptr_v<T>
         << "\t" << is_pair_collection_v<T>
         << "\n";
 }
@@ -97,13 +112,15 @@ void meta(std::string description)
 void test_meta()
 {
     std::cout << "META:\n"
-        "Type\t\t\t\t" "String\t" "Pair\t" "Coll\t" "PairColl\n";
+        "Type\t\t\t\t" "String\t" "Pair\t" "Coll\t" "SmartP\t" "PairColl\n";
     META(int);
     META(char*);
     META(std::string);
     META(std::pair<int, char*>);
     META(std::vector<int>);
     META(std::map<std::string, int>);
+    META(std::unique_ptr<std::string>);
+    META(std::shared_ptr<std::string>);
 }
 // END
 #endif /* !META_TEST */

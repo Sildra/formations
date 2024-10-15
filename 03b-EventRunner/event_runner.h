@@ -7,12 +7,14 @@
 #include <vector>
 #include <condition_variable>
 
-namespace thread_pool {
-using Task = std::function<void()>;
-using UniqueTask = std::unique_ptr<Task>;
+namespace event_runner {
+struct IEvent { virtual ~IEvent() = default; };
+using SharedEvent = std::shared_ptr<IEvent>;
+using EventFunction = std::function<void(const IEvent&)>;
 
 struct StopException : public std::exception {};
 
+template<auto F>
 struct ThreadPool final
 {
     // DATA
@@ -20,7 +22,8 @@ struct ThreadPool final
     std::condition_variable waiter;             // Notify incomming jobs
     std::condition_variable pool;               // Notify thread creation
     std::vector<std::thread> executors;         // Executor threads
-    std::deque<UniqueTask> tasks;               // Task collection
+    std::deque<SharedEvent> events;             // Event collection
+    std::atomic_bool running = true;
 
     // CTOR
     ThreadPool(int count)
@@ -35,16 +38,13 @@ struct ThreadPool final
     // DTOR
     ~ThreadPool()
     {
-        std::vector<UniqueTask> tasks;
-        tasks.reserve(executors.size());
-        for (size_t i = 0; i < executors.size(); ++i)
-            tasks.push_back(std::make_unique<Task>([]() { throw StopException(); } ));
-        schedule(std::move(tasks));
+        running = false;
+        waiter.notify_all();
         for (auto& executor : executors) {
             executor.join();
         }
-        while (auto f = get_task()) {
-            (*f)();
+        while (auto event = get_event()) {
+            F(*event);
         }
     }
 
@@ -53,42 +53,38 @@ struct ThreadPool final
     void schedule(C&& coll)
     {
         std::lock_guard<std::mutex> lock { mutex };
-        for (auto&& task : coll)
-            tasks.push_back(std::move(task));
+        for (auto& event : coll)
+            events.push_back(event);
         waiter.notify_all();
     }
     
-    void schedule(UniqueTask&& task)
+    void schedule(const SharedEvent& event)
     {
         std::lock_guard<std::mutex> lock { mutex };
-        tasks.push_back(std::move(task));
+        events.push_back(event);
         waiter.notify_one();
     }
 
     // EXECUTE
     bool execute()
     {
-        try {
-            std::unique_lock<std::mutex> lock { mutex };
-            if (auto t = get_task()) {
-                lock.unlock();
-                (*t)();
-                return true;
-            }
-        } catch (const StopException&) {
-            schedule(std::make_unique<Task>([]() { throw StopException(); } ));
+        std::unique_lock<std::mutex> lock { mutex };
+        if (auto event = get_event()) {
+            lock.unlock();
+            F(event);
+            return true;
         }
         return false;
     }
     // END
 
 private:
-    UniqueTask get_task()
+    SharedEvent get_event()
     {
-        if (tasks.empty())
-            return UniqueTask();
-        UniqueTask item { std::move(tasks.front()) };
-        tasks.pop_front();
+        if (events.empty())
+            return SharedEvent();
+        SharedEvent item { std::move(events.front()) };
+        events.pop_front();
         return item;
     }
 
@@ -99,16 +95,17 @@ private:
         pool.notify_one();
 
         try {
-            while (true) {
+            while (running) {
                 waiter.wait(notif);
-                while (auto task = get_task()) {
+                while (auto event = get_event()) {
                     notif.unlock();
-                    (*task)();
+                    F(*event);
                     notif.lock();
                 }
             }
+            notif.unlock();
         } catch (const std::exception&) {}
     }
     // END
 };
-} /* !namespace thread_pool */
+} /* !namespace event_runner */

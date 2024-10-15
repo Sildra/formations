@@ -25,7 +25,6 @@ std::condition_variable waiter;             // Notify incomming jobs
 std::condition_variable pool;               // Notify thread creation
 std::vector<std::thread> executors;         // Executor threads
 std::deque<UniqueTask> tasks;               // Task collection
-
 ```
 
 
@@ -42,7 +41,6 @@ ThreadPool(int count)
         pool.wait(notif);
     }
 }
-
 ```
 
 # Thread exécution
@@ -95,10 +93,11 @@ La destruction de la `ThreadPool` doit garantir la bonne libération des ressour
         (*f)();
     }
 }
-
 ```
 
 # Ordonnancement
+
+TODO
 
 ```cpp
 template<typename C>
@@ -109,17 +108,18 @@ void schedule(C&& coll)
         tasks.push_back(std::move(task));
     waiter.notify_all();
 }
-template<>
+
 void schedule(UniqueTask&& task)
 {
     std::lock_guard<std::mutex> lock { mutex };
     tasks.push_back(std::move(task));
     waiter.notify_one();
 }
-
 ```
 
 # Tests
+
+TODO
 
 ```cpp
 static int global_id = 0;
@@ -142,7 +142,6 @@ void showTime(const std::string& info, std::chrono::high_resolution_clock::time_
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
     std::cout << info << " executed in " << duration << "ms\n";
 }
-
 ```
 
 Dans nos tests, nous allons tester avec une ThreadPool de 5 threads.
@@ -190,7 +189,6 @@ struct TaskGenerator
         thread_pool.schedule(std::move(generator));
     }
 };
-
 ```
 
 Le thread principal va aussi exécuter une partie des tâches (et permettre d'attendre la fin de l'exécution du générateur).
@@ -211,20 +209,22 @@ for (int  i = operation_count - 1; i > 0; --i) {
 showTime(std::to_string(tot) + " tasks", now);
 ```
 
+La compilation nécessite le flag de link `-pthread`.
+
 ```bash
 > $CC -std=c++14 main.cpp -pthread -O3 -o threads.exe
 > threads.exe
 ThreadPool
-ThreadPool creation executed in 5ms
+ThreadPool creation executed in 2ms
 Thread 0 Display()
 Thread 1 Display()
 Thread 2 Display()
 Thread 3 Display2()
 Thread 4 Display()
-Thread 2 Display2()
-Thread 0 Display()
-Thread 1 Display()
-986410 tasks executed in 1881ms
+Thread 1 Display2()
+Thread 3 Display()
+Thread 2 Display()
+986410 tasks executed in 471ms
 End ThreadPool
 ```
 

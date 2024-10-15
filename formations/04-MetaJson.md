@@ -1,8 +1,8 @@
 [Sommaire](../README.md)
 
-# La Metaprogrammation
+# La Métaprogrammation
 
-La metaprogrammation en C++ nous permet de spécialiser nos templates à l'aide de caractéristiques communes appelés `traits`.
+La métaprogrammation en C++ nous permet de spécialiser nos templates à l'aide de caractéristiques communes appelés `traits`.
 
 
 La bibliothèque standard en contiens un certain nombre (`is_same`, `is_arithmetic`, ...) mais pour nos besoins, nous allons définir `is_string`, `is_pair` et `is_collection`.
@@ -26,7 +26,9 @@ struct is_basic_string {
 };
 template<typename T>
 static constexpr bool is_basic_string_v = is_basic_string<T>::value;
+```
 
+```bash
 > $CC -std=c++14 -DMETA_TEST -Irapidjson/include *.cpp -o meta.exe 2>&1 | grep ' C++'
 ./meta.h:6:10: warning: C++14 [-W#pragma-messages]
 ```
@@ -40,7 +42,9 @@ template<typename T, typename = void>
 static constexpr bool is_basic_string_v = false;
 template<typename T>
 static constexpr bool is_basic_string_v<T, std::void_t<decltype(std::declval<T>().c_str())>> = true;
+```
 
+```bash
 > $CC -std=c++17 -DMETA_TEST -Irapidjson/include *.cpp -o meta.exe 2>&1 | grep ' C++'
 ./meta.h:22:10: warning: C++17 [-W#pragma-messages]
 ```
@@ -52,7 +56,9 @@ L'ajout des `concepts` en C++20 permet de simplifier grandement la définition d
 ```cpp
 template<typename T>
 concept is_basic_string_v = requires(T a) { a.c_str(); }
+```
 
+```bash
 > $CC -std=c++20 -DMETA_TEST -Irapidjson/include *.cpp -o meta.exe 2>&1 | grep ' C++'
 ./meta.h:30:10: warning: C++20 [-W#pragma-messages]
 ```
@@ -116,6 +122,26 @@ template<typename T>
 static constexpr bool is_pair_collection_v = is_pair_collection<T>::value;
 ```
 
+## Les smart pointers
+
+L'ajout de smart pointers nous permet de distinguer un type standard d'un type managé. Les smart pointers ont en général une surcharge de l'operateur `->` et `*` qui leur permet un déréférencement automatique.
+
+
+```cpp
+template<typename T>
+struct is_smartptr {
+    template<typename A>
+    static constexpr bool test(A* pt, decltype(pt->operator->())* = nullptr) {
+        return true;
+    }
+    template<typename A>
+    static constexpr bool test(...) { return false; }
+    static constexpr bool value = test<typename std::decay<T>::type>(nullptr);
+};
+template<typename T>
+static constexpr bool is_smartptr_v = is_smartptr<T>::value;
+```
+
 ## MetaTests
 
 Les tests suivants permettent de rapidement savoir quel type sont compatibles avec les traits que nous venons de définir.
@@ -129,6 +155,7 @@ void meta(std::string description)
         << "\t" << is_basic_string_v<T>
         << "\t" << is_pair_v<T>
         << "\t" << is_collection_v<T>
+        << "\t" << is_smartptr_v<T>
         << "\t" << is_pair_collection_v<T>
         << "\n";
 }
@@ -137,51 +164,60 @@ void meta(std::string description)
 void test_meta()
 {
     std::cout << "META:\n"
-        "Type\t\t\t\t" "String\t" "Pair\t" "Coll\t" "PairColl\n";
+        "Type\t\t\t\t" "String\t" "Pair\t" "Coll\t" "SmartP\t" "PairColl\n";
     META(int);
     META(char*);
     META(std::string);
     META(std::pair<int, char*>);
     META(std::vector<int>);
     META(std::map<std::string, int>);
+    META(std::unique_ptr<std::string>);
+    META(std::shared_ptr<std::string>);
 }
+```
+
+```bash
 > meta.exe
 META:
-Type                            String  Pair    Coll    PairColl
-int                             false   false   false   false
-char*                           false   false   false   false
-std::string                     true    false   true    false
-std::pair<int, char*>           false   true    false   false
-std::vector<int>                false   false   true    false
-std::map<std::string, int>      false   false   true    true
+Type                            String  Pair    Coll    SmartP  PairColl
+int                             false   false   false   false   false
+char*                           false   false   false   false   false
+std::string                     true    false   true    false   false
+std::pair<int, char*>           false   true    false   false   false
+std::vector<int>                false   false   true    false   false
+std::map<std::string, int>      false   false   true    false   true
+std::unique_ptr<std::string>    false   false   false   true    false
+std::shared_ptr<std::string>    false   false   false   true    false
 ```
 
 # Le JSON avec RapidJson
 
 RapidJson est une bibliothèque développée par Tencent qui permet de manipuler des structures de données JSON en C++.
-La principale problématique de cette bibliothèque est qu'elle commence à être un peu datée et n'intègre pas des concepts modernes de la metaprogrammation en C++.
+La principale problématique de cette bibliothèque est qu'elle commence à être un peu datée et n'intègre pas des concepts modernes de la métaprogrammation en C++.
 De ce fait, la bibliothèque ne gère pas la sérialisation/désérialisation des collections de la STL out of the box.
 
 Nos nouvelles connaissances sur la métaprogrammation peuvent nous permettre d'ajouter facilement ces capacités.
 
 ## SFINAE
 
-Le SFINAE est une technique de métaprogrammation permettant d'établir la  base de notre template.
-Dans notre cas, il nous permet de 3 avantages :
+Le SFINAE (Substitution Failure Is Not An Error) est une technique de métaprogrammation permettant d'établir la  base de notre template.
+Le compilateur résous les templates et élimine silencieusement les surcharges dont les signatures produisent des erreurs de compilation.
 
-* Définir l'interface de base de notre template;
-* Lever explicitement une erreur en cas d'instanciation;
-* Réduire le nombre d'erreurs de compilations liées à l'instanciation d'un mauvais template
+Dans notre cas, nous définissons un template terminal qui nous permet de profiter 3 avantages :
+
+* Définir l'interface de base de notre template et servir implicitement de documentation;
+* Lever explicitement une (et une seule) erreur claire en cas d'instanciation;
+* Réduire le nombre d'erreurs de compilations ou de suggestions liées à l'instanciation d'un mauvais template ou la mauvaise déduction de signatures
+
+Dans notre cas, le template que nous définissons est valide en toutes circonstances mais est le moins contraint. Il n'est utilisé que si aucun autre template n'a pu être résolu sans erreurs.
 
 ```cpp
-namespace json {
 template<typename T, typename Enable = void> struct cx
 {
     static_assert(std::is_same<T, void>::value, "Class is not elligible for json conversion");
     static inline T deserialize(rapidjson::Value& v) { return T(); }
     static inline void serialize(rapidjson::Value& d, rapidjson::Document::AllocatorType& a, const T& f) {}
 };
-
 ```
 
 ## Helper
@@ -208,7 +244,6 @@ namespace json {
         d.Accept(writer);
         return buffer.GetString();
     }
-    
 }
 
 /// Usage:
@@ -219,13 +254,14 @@ decltype(v) v2 = json::deserialize<decltype(v)>(json::serialize(v));
 
 ## Les primitives
 
-Concernant RapidJson, les primitives qui sont gérées sont : { `String`, `Bool`, `Int`, `Int64`, `UInt`, `UInt64`, `Double` }. Nos allons nous limiter à `double` et `int64_t` dans notre exemple.
+Concernant RapidJson, les primitives qui sont gérées sont : { `String`, `Bool`, `Int`, `Int64`, `UInt`, `UInt64`, `Double` }. Nos allons nous limiter à `string`, `bool`, `double` et `int64_t` dans notre exemple.
 
 ```cpp
 /// String
 template<typename T>
 struct cx<T, typename std::enable_if_t<is_basic_string_v<T>>>
 {
+    static constexpr bool has_string_affinity = true;
     static inline T deserialize(rapidjson::Value& v)
     { return v.GetString(); }
     static inline void serialize(rapidjson::Value& d, rapidjson::Document::AllocatorType& a, const T& f)
@@ -251,6 +287,7 @@ struct cx<T, typename std::enable_if_t<std::is_floating_point<T>::value>>
     static inline void serialize(rapidjson::Value& d, rapidjson::Document::AllocatorType& a, const T& f)
     { d = f; }
 };
+
 /// Bool
 template<>
 struct cx<bool>
@@ -261,12 +298,11 @@ struct cx<bool>
     static inline void serialize(rapidjson::Value& d, rapidjson::Document::AllocatorType& a, const T& f)
     { d = f; }
 };
-
 ```
 
 ## Les collections
 
-TODO
+En JSON les collections utilisent le même pattern : `[ $value, ...]`. Ce pattern s'applique aussi bien pour les objets à 1 élément (`std::set`, `std::vector`, ...) que ceux contenant des pairs (`std::map`, `std::multimap`, ...). Nous prenons avantage du `std::inserter` afin de normaliser l'interface d'insertion de nos collections.
 
 ```cpp
 template<typename T>
@@ -291,16 +327,36 @@ struct cx<T, typename std::enable_if_t<is_collection_v<T> && !is_basic_string_v<
         }
     }
 };
-
 ```
 
 ## Les pairs
 
-TODO
+L'utilité principale de notre `std::pair` est majoritairement de pouvoir traiter nos collections de pairs associatives de manière uniforme.
+
+L'utilisation usuelle de cette association prends la forme `{ "$key": $value }` mais limite le format de la clé à une chaine de caractères. Une forme spécialisée est utilisée pour ce cas particulier, le cas générique utilisant la forme `{ "Key": $key, "Value": $value }`. Afin de mieux profiter du format court de la pair, nous utilisons un flag dans la structure qui pourra être définit dans les surcharges de templates.
+
+Le trait de métaprogrammation est définit comme suit.
 
 ```cpp
 template<typename T>
-struct cx<T, typename std::enable_if_t<is_pair_v<T> && is_basic_string_v<typename T::first_type>>>
+struct has_string_affinity {
+    template<typename A>
+    static constexpr bool test(A* pt, decltype(A::has_string_affinity)* pi = nullptr) {
+        return A::has_string_affinity;
+    }
+    template<typename A>
+    static constexpr bool test(...) { return false; }
+    static constexpr bool value = test<typename std::decay<T>::type>(nullptr);
+};
+template<typename T>
+static constexpr bool has_string_affinity_v = has_string_affinity<T>::value;
+```
+
+Les structures json de la pair sont définies comme suit avec notre trait.
+
+```cpp
+template<typename T>
+struct cx<T, typename std::enable_if_t<is_pair_v<T> && has_string_affinity_v<json::cx<std::decay_t<typename T::first_type>>>>>
 {
     typedef std::decay_t<typename T::first_type> first_type;
     typedef std::decay_t<typename T::second_type> second_type;
@@ -320,7 +376,7 @@ struct cx<T, typename std::enable_if_t<is_pair_v<T> && is_basic_string_v<typenam
     }
 };
 template<typename T>
-struct cx<T, typename std::enable_if_t<is_pair_v<T> && !is_basic_string_v<typename T::first_type>>>
+struct cx<T, typename std::enable_if_t<is_pair_v<T> && !has_string_affinity_v<json::cx<std::decay_t<typename T::first_type>>>>>
 {
     typedef std::decay_t<typename T::first_type> first_type;
     typedef std::decay_t<typename T::second_type> second_type;
@@ -340,10 +396,53 @@ struct cx<T, typename std::enable_if_t<is_pair_v<T> && !is_basic_string_v<typena
         d.AddMember("Value", v, a);
     }
 };
-
 ```
 
+
 ## JsonTests
+
+Afin de tester le comportement de notre affinité avec une `Enum`, nous définissons la structure de conversion suivante :
+
+```cpp
+enum class StringTest { A, B };
+template<>
+struct json::cx<StringTest> {
+    static constexpr bool has_string_affinity = true;
+    typedef StringTest T;
+
+    static const auto& to_string_mapper() {
+        static const std::unordered_map<T, std::string> m = {
+            { StringTest::A, "A" },
+            { StringTest::B, "B" },
+        };
+        return m;
+    }
+    static const auto& from_string_mapper() {
+        static const auto m = []() {
+            std::unordered_map<std::string, T> r;
+            for (const auto& m_ : to_string_mapper())
+                r.insert( { m_.second, m_.first } );
+            return r;
+        }();
+        return m;
+    }
+    static T map(const std::string& value) {
+        const auto& m = from_string_mapper();
+        auto f = m.find(value);
+        return (f != m.end() ? f->second : m.begin()->second);
+    }
+    static const std::string& map(T value) {
+        const auto& m = to_string_mapper();
+        auto f = m.find(value);
+        return (f != m.end() ? f->second : m.begin()->second);
+    }
+
+    static inline T deserialize(rapidjson::Value& v)
+    { return map(v.GetString()); }
+    static inline void serialize(rapidjson::Value& d, rapidjson::Document::AllocatorType& a, const T& f)
+    { const auto& v = map(f); d = rapidjson::StringRef(v.c_str(), v.size()); }
+};
+```
 
 Les tests json suivant vérifient que la sérialisation puis la désérialisation d'un objet nous renvoient le même résultat.
 
@@ -369,8 +468,14 @@ void test_json()
         { { { 0, 1, 2 }, { "A", "B", "C" } } ,
           { { 42 }, { "Universe" } },
         });
-}
 
+    json_test("std::map<StringTest, int>",
+        std::map<StringTest, int> { { StringTest::A, 0 }, { StringTest::B, 1 } }
+    );
+}
+```
+
+```bash
 > $CC -std=c++14 -DJSON_TEST -Irapidjson/include *.cpp -o json.exe
 > json.exe
 JSON:
@@ -385,6 +490,9 @@ std::map<int, std::string>:
         Same? true
 std::map<std::vector<int>, std::vector<std::string>>:
         [{"Key":[0,1,2],"Value":["A","B","C"]},{"Key":[42],"Value":["Universe"]}]
+        Same? true
+std::map<StringTest, int>:
+        [{"A":0},{"B":1}]
         Same? true
 ```
 

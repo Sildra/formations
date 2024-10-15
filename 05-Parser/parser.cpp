@@ -7,7 +7,7 @@
 #include <functional>
 
 template<typename T, T... S, typename F>
-constexpr void for_sequence(std::integer_sequence<T, S...>, F&& f) {
+static constexpr void for_sequence(std::integer_sequence<T, S...>, F&& f) {
     (static_cast<void>(f(std::integral_constant<T, S>{})), ...);
 }
 
@@ -225,7 +225,7 @@ public:
         // Affinity from return value -> push to parameters
         if (affinity == Affinity::UNKNOWN && targetAffinity != Affinity::UNKNOWN) {
             affinity = targetAffinity;
-            for_sequence(std::make_index_sequence<S>{}, [&](auto i) {
+            for_sequence(std::make_index_sequence<S>{}, [&](auto i) constexpr {
                 if constexpr (P[i] == Affinity::UNKNOWN)
                     values[i]->narrowAffinity(affinity);
                 else
@@ -238,7 +238,7 @@ public:
             throw Exception(*this, targetAffinity, affinity);
 
         Affinity foundAffinity = Affinity::UNKNOWN;
-        for_sequence(std::make_index_sequence<S>{}, [&](auto i) {
+        for_sequence(std::make_index_sequence<S>{}, [&](auto i) constexpr {
             if (Affinity returned = values[i]->narrowAffinity(P[i]); returned != P[i])
                 foundAffinity = returned;
             }); //  (283,648 bytes)
@@ -248,7 +248,7 @@ public:
         if (foundAffinity != Affinity::UNKNOWN) {
             if (affinity == Affinity::UNKNOWN)
                 affinity = foundAffinity;
-            for_sequence(std::make_index_sequence<S>{}, [&](auto i) {
+            for_sequence(std::make_index_sequence<S>{}, [&](auto i) constexpr {
                 if constexpr (P[i] == Affinity::UNKNOWN)
                     values[i]->narrowAffinity(foundAffinity);
                 });

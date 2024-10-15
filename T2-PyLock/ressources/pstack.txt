@@ -1,0 +1,275 @@
+GNU gdb (Ubuntu 12.1-0ubuntu1~22.04) 12.1
+Copyright (C) 2022 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<https://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word".
+Attaching to process 169477
+[New LWP 169478]
+[New LWP 169479]
+[New LWP 169480]
+[New LWP 169481]
+[New LWP 169482]
+[New LWP 169483]
+[New LWP 169484]
+[New LWP 169486]
+[New LWP 169487]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+__futex_abstimed_wait_common64 (private=128, cancel=true, abstime=0x0, op=265, expected=169478, futex_word=0x7f0f422f4910) at ./nptl/futex-internal.c:57
+(gdb) (gdb) 
+Thread 10 (Thread 0x7f0f3daeb640 (LWP 169487) "threads"):
+#0  futex_wait (private=0, expected=2, futex_word=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at ../sysdeps/nptl/futex-internal.h:146
+#1  __GI___lll_lock_wait (futex=futex@entry=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>, private=0) at ./nptl/lowlevellock.c:49
+#2  0x00007f0f42478002 in lll_mutex_lock_optimized (mutex=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at ./nptl/pthread_mutex_lock.c:48
+#3  ___pthread_mutex_lock (mutex=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at ./nptl/pthread_mutex_lock.c:93
+#4  0x0000562d9514654d in __gthread_mutex_lock (__mutex=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at /usr/include/x86_64-linux-gnu/c++/11/bits/gthr-default.h:749
+#5  0x0000562d9514660a in std::mutex::lock (this=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at /usr/include/c++/11/bits/std_mutex.h:100
+#6  0x0000562d9514712a in std::lock_guard<std::mutex>::lock_guard (this=0x7f0f3daeac00, __m=...) at /usr/include/c++/11/bits/std_mutex.h:229
+#7  0x0000562d9514450b in static_lock_function1(std::function<void ()> const&) (executor=...) at T2-PyLock/main.cpp:5
+#8  0x0000562d95144740 in operator() (__closure=0x562d96068020) at T2-PyLock/main.cpp:24
+#9  0x0000562d95145f98 in std::__invoke_impl<void, main()::<lambda()>&>(std::__invoke_other, struct {...} &) (__f=...) at /usr/include/c++/11/bits/invoke.h:61
+#10 0x0000562d95145960 in std::__invoke_r<void, main()::<lambda()>&>(struct {...} &) (__fn=...) at /usr/include/c++/11/bits/invoke.h:111
+#11 0x0000562d951452f4 in std::_Function_handler<void(), main()::<lambda()> >::_M_invoke(const std::_Any_data &) (__functor=...) at /usr/include/c++/11/bits/std_function.h:290
+#12 0x0000562d95147b34 in std::function<void ()>::operator()() const (this=0x562d96068020) at /usr/include/c++/11/bits/std_function.h:590
+#13 0x0000562d95146f31 in thread_pool::ThreadPool::execute_thread (this=0x7ffc66691260) at T2-PyLock/../03-ThreadPool/thread_pool.h:106
+#14 0x0000562d9514c401 in std::__invoke_impl<void, void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> (__f=@0x562d96067ea0: (void (thread_pool::ThreadPool::*)(thread_pool::ThreadPool * const)) 0x562d95146e88 <thread_pool::ThreadPool::execute_thread()>, __t=@0x562d96067e98: 0x7ffc66691260) at /usr/include/c++/11/bits/invoke.h:74
+#15 0x0000562d9514c383 in std::__invoke<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> (__fn=@0x562d96067ea0: (void (thread_pool::ThreadPool::*)(thread_pool::ThreadPool * const)) 0x562d95146e88 <thread_pool::ThreadPool::execute_thread()>) at /usr/include/c++/11/bits/invoke.h:96
+#16 0x0000562d9514c2e3 in std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> >::_M_invoke<0ul, 1ul> (this=0x562d96067e98) at /usr/include/c++/11/bits/std_thread.h:259
+#17 0x0000562d9514c298 in std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> >::operator() (this=0x562d96067e98) at /usr/include/c++/11/bits/std_thread.h:266
+#18 0x0000562d9514c278 in std::thread::_State_impl<std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> > >::_M_run (this=0x562d96067e90) at /usr/include/c++/11/bits/std_thread.h:211
+#19 0x00007f0f42705253 in ?? () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#20 0x00007f0f42474ac3 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:442
+#21 0x00007f0f42506850 in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:81
+
+Thread 9 (Thread 0x7f0f3e2ec640 (LWP 169486) "threads"):
+#0  futex_wait (private=0, expected=2, futex_word=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at ../sysdeps/nptl/futex-internal.h:146
+#1  __GI___lll_lock_wait (futex=futex@entry=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>, private=0) at ./nptl/lowlevellock.c:49
+#2  0x00007f0f42478002 in lll_mutex_lock_optimized (mutex=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at ./nptl/pthread_mutex_lock.c:48
+#3  ___pthread_mutex_lock (mutex=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at ./nptl/pthread_mutex_lock.c:93
+#4  0x0000562d9514654d in __gthread_mutex_lock (__mutex=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at /usr/include/x86_64-linux-gnu/c++/11/bits/gthr-default.h:749
+#5  0x0000562d9514660a in std::mutex::lock (this=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at /usr/include/c++/11/bits/std_mutex.h:100
+#6  0x0000562d9514712a in std::lock_guard<std::mutex>::lock_guard (this=0x7f0f3e2ebc00, __m=...) at /usr/include/c++/11/bits/std_mutex.h:229
+#7  0x0000562d9514450b in static_lock_function1(std::function<void ()> const&) (executor=...) at T2-PyLock/main.cpp:5
+#8  0x0000562d95144740 in operator() (__closure=0x562d96068140) at T2-PyLock/main.cpp:24
+#9  0x0000562d95145f98 in std::__invoke_impl<void, main()::<lambda()>&>(std::__invoke_other, struct {...} &) (__f=...) at /usr/include/c++/11/bits/invoke.h:61
+#10 0x0000562d95145960 in std::__invoke_r<void, main()::<lambda()>&>(struct {...} &) (__fn=...) at /usr/include/c++/11/bits/invoke.h:111
+#11 0x0000562d951452f4 in std::_Function_handler<void(), main()::<lambda()> >::_M_invoke(const std::_Any_data &) (__functor=...) at /usr/include/c++/11/bits/std_function.h:290
+#12 0x0000562d95147b34 in std::function<void ()>::operator()() const (this=0x562d96068140) at /usr/include/c++/11/bits/std_function.h:590
+#13 0x0000562d95146f31 in thread_pool::ThreadPool::execute_thread (this=0x7ffc66691260) at T2-PyLock/../03-ThreadPool/thread_pool.h:106
+#14 0x0000562d9514c401 in std::__invoke_impl<void, void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> (__f=@0x562d96067cb0: (void (thread_pool::ThreadPool::*)(thread_pool::ThreadPool * const)) 0x562d95146e88 <thread_pool::ThreadPool::execute_thread()>, __t=@0x562d96067ca8: 0x7ffc66691260) at /usr/include/c++/11/bits/invoke.h:74
+#15 0x0000562d9514c383 in std::__invoke<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> (__fn=@0x562d96067cb0: (void (thread_pool::ThreadPool::*)(thread_pool::ThreadPool * const)) 0x562d95146e88 <thread_pool::ThreadPool::execute_thread()>) at /usr/include/c++/11/bits/invoke.h:96
+#16 0x0000562d9514c2e3 in std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> >::_M_invoke<0ul, 1ul> (this=0x562d96067ca8) at /usr/include/c++/11/bits/std_thread.h:259
+#17 0x0000562d9514c298 in std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> >::operator() (this=0x562d96067ca8) at /usr/include/c++/11/bits/std_thread.h:266
+#18 0x0000562d9514c278 in std::thread::_State_impl<std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> > >::_M_run (this=0x562d96067ca0) at /usr/include/c++/11/bits/std_thread.h:211
+#19 0x00007f0f42705253 in ?? () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#20 0x00007f0f42474ac3 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:442
+#21 0x00007f0f42506850 in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:81
+
+Thread 8 (Thread 0x7f0f3f2ee640 (LWP 169484) "threads"):
+#0  futex_wait (private=0, expected=2, futex_word=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at ../sysdeps/nptl/futex-internal.h:146
+#1  __GI___lll_lock_wait (futex=futex@entry=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>, private=0) at ./nptl/lowlevellock.c:49
+#2  0x00007f0f42478002 in lll_mutex_lock_optimized (mutex=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at ./nptl/pthread_mutex_lock.c:48
+#3  ___pthread_mutex_lock (mutex=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at ./nptl/pthread_mutex_lock.c:93
+#4  0x0000562d9514654d in __gthread_mutex_lock (__mutex=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at /usr/include/x86_64-linux-gnu/c++/11/bits/gthr-default.h:749
+#5  0x0000562d9514660a in std::mutex::lock (this=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at /usr/include/c++/11/bits/std_mutex.h:100
+#6  0x0000562d9514712a in std::lock_guard<std::mutex>::lock_guard (this=0x7f0f3f2edc00, __m=...) at /usr/include/c++/11/bits/std_mutex.h:229
+#7  0x0000562d9514450b in static_lock_function1(std::function<void ()> const&) (executor=...) at T2-PyLock/main.cpp:5
+#8  0x0000562d95144740 in operator() (__closure=0x562d96068170) at T2-PyLock/main.cpp:24
+#9  0x0000562d95145f98 in std::__invoke_impl<void, main()::<lambda()>&>(std::__invoke_other, struct {...} &) (__f=...) at /usr/include/c++/11/bits/invoke.h:61
+#10 0x0000562d95145960 in std::__invoke_r<void, main()::<lambda()>&>(struct {...} &) (__fn=...) at /usr/include/c++/11/bits/invoke.h:111
+#11 0x0000562d951452f4 in std::_Function_handler<void(), main()::<lambda()> >::_M_invoke(const std::_Any_data &) (__functor=...) at /usr/include/c++/11/bits/std_function.h:290
+#12 0x0000562d95147b34 in std::function<void ()>::operator()() const (this=0x562d96068170) at /usr/include/c++/11/bits/std_function.h:590
+#13 0x0000562d95146f31 in thread_pool::ThreadPool::execute_thread (this=0x7ffc66691260) at T2-PyLock/../03-ThreadPool/thread_pool.h:106
+#14 0x0000562d9514c401 in std::__invoke_impl<void, void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> (__f=@0x562d960679f0: (void (thread_pool::ThreadPool::*)(thread_pool::ThreadPool * const)) 0x562d95146e88 <thread_pool::ThreadPool::execute_thread()>, __t=@0x562d960679e8: 0x7ffc66691260) at /usr/include/c++/11/bits/invoke.h:74
+#15 0x0000562d9514c383 in std::__invoke<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> (__fn=@0x562d960679f0: (void (thread_pool::ThreadPool::*)(thread_pool::ThreadPool * const)) 0x562d95146e88 <thread_pool::ThreadPool::execute_thread()>) at /usr/include/c++/11/bits/invoke.h:96
+#16 0x0000562d9514c2e3 in std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> >::_M_invoke<0ul, 1ul> (this=0x562d960679e8) at /usr/include/c++/11/bits/std_thread.h:259
+#17 0x0000562d9514c298 in std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> >::operator() (this=0x562d960679e8) at /usr/include/c++/11/bits/std_thread.h:266
+#18 0x0000562d9514c278 in std::thread::_State_impl<std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> > >::_M_run (this=0x562d960679e0) at /usr/include/c++/11/bits/std_thread.h:211
+#19 0x00007f0f42705253 in ?? () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#20 0x00007f0f42474ac3 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:442
+#21 0x00007f0f42506850 in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:81
+
+Thread 7 (Thread 0x7f0f3faef640 (LWP 169483) "threads"):
+#0  futex_wait (private=0, expected=2, futex_word=0x562d95154080 <static_lock_function2(std::function<void ()> const&)::mutex2>) at ../sysdeps/nptl/futex-internal.h:146
+#1  __GI___lll_lock_wait (futex=futex@entry=0x562d95154080 <static_lock_function2(std::function<void ()> const&)::mutex2>, private=0) at ./nptl/lowlevellock.c:49
+#2  0x00007f0f42478002 in lll_mutex_lock_optimized (mutex=0x562d95154080 <static_lock_function2(std::function<void ()> const&)::mutex2>) at ./nptl/pthread_mutex_lock.c:48
+#3  ___pthread_mutex_lock (mutex=0x562d95154080 <static_lock_function2(std::function<void ()> const&)::mutex2>) at ./nptl/pthread_mutex_lock.c:93
+#4  0x0000562d9514654d in __gthread_mutex_lock (__mutex=0x562d95154080 <static_lock_function2(std::function<void ()> const&)::mutex2>) at /usr/include/x86_64-linux-gnu/c++/11/bits/gthr-default.h:749
+#5  0x0000562d9514660a in std::mutex::lock (this=0x562d95154080 <static_lock_function2(std::function<void ()> const&)::mutex2>) at /usr/include/c++/11/bits/std_mutex.h:100
+#6  0x0000562d9514712a in std::lock_guard<std::mutex>::lock_guard (this=0x7f0f3faeec00, __m=...) at /usr/include/c++/11/bits/std_mutex.h:229
+#7  0x0000562d95144593 in static_lock_function2(std::function<void ()> const&) (executor=...) at T2-PyLock/main.cpp:11
+#8  0x0000562d951447c6 in operator() (__closure=0x562d960680b0) at T2-PyLock/main.cpp:25
+#9  0x0000562d9514603e in std::__invoke_impl<void, main()::<lambda()>&>(std::__invoke_other, struct {...} &) (__f=...) at /usr/include/c++/11/bits/invoke.h:61
+#10 0x0000562d95145aa6 in std::__invoke_r<void, main()::<lambda()>&>(struct {...} &) (__fn=...) at /usr/include/c++/11/bits/invoke.h:111
+#11 0x0000562d951453e8 in std::_Function_handler<void(), main()::<lambda()> >::_M_invoke(const std::_Any_data &) (__functor=...) at /usr/include/c++/11/bits/std_function.h:290
+#12 0x0000562d95147b34 in std::function<void ()>::operator()() const (this=0x562d960680b0) at /usr/include/c++/11/bits/std_function.h:590
+#13 0x0000562d95146f31 in thread_pool::ThreadPool::execute_thread (this=0x7ffc66691260) at T2-PyLock/../03-ThreadPool/thread_pool.h:106
+#14 0x0000562d9514c401 in std::__invoke_impl<void, void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> (__f=@0x562d96067580: (void (thread_pool::ThreadPool::*)(thread_pool::ThreadPool * const)) 0x562d95146e88 <thread_pool::ThreadPool::execute_thread()>, __t=@0x562d96067578: 0x7ffc66691260) at /usr/include/c++/11/bits/invoke.h:74
+#15 0x0000562d9514c383 in std::__invoke<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> (__fn=@0x562d96067580: (void (thread_pool::ThreadPool::*)(thread_pool::ThreadPool * const)) 0x562d95146e88 <thread_pool::ThreadPool::execute_thread()>) at /usr/include/c++/11/bits/invoke.h:96
+#16 0x0000562d9514c2e3 in std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> >::_M_invoke<0ul, 1ul> (this=0x562d96067578) at /usr/include/c++/11/bits/std_thread.h:259
+#17 0x0000562d9514c298 in std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> >::operator() (this=0x562d96067578) at /usr/include/c++/11/bits/std_thread.h:266
+#18 0x0000562d9514c278 in std::thread::_State_impl<std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> > >::_M_run (this=0x562d96067570) at /usr/include/c++/11/bits/std_thread.h:211
+#19 0x00007f0f42705253 in ?? () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#20 0x00007f0f42474ac3 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:442
+#21 0x00007f0f42506850 in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:81
+
+Thread 6 (Thread 0x7f0f402f0640 (LWP 169482) "threads"):
+#0  futex_wait (private=0, expected=2, futex_word=0x562d95154080 <static_lock_function2(std::function<void ()> const&)::mutex2>) at ../sysdeps/nptl/futex-internal.h:146
+#1  __GI___lll_lock_wait (futex=futex@entry=0x562d95154080 <static_lock_function2(std::function<void ()> const&)::mutex2>, private=0) at ./nptl/lowlevellock.c:49
+#2  0x00007f0f42478002 in lll_mutex_lock_optimized (mutex=0x562d95154080 <static_lock_function2(std::function<void ()> const&)::mutex2>) at ./nptl/pthread_mutex_lock.c:48
+#3  ___pthread_mutex_lock (mutex=0x562d95154080 <static_lock_function2(std::function<void ()> const&)::mutex2>) at ./nptl/pthread_mutex_lock.c:93
+#4  0x0000562d9514654d in __gthread_mutex_lock (__mutex=0x562d95154080 <static_lock_function2(std::function<void ()> const&)::mutex2>) at /usr/include/x86_64-linux-gnu/c++/11/bits/gthr-default.h:749
+#5  0x0000562d9514660a in std::mutex::lock (this=0x562d95154080 <static_lock_function2(std::function<void ()> const&)::mutex2>) at /usr/include/c++/11/bits/std_mutex.h:100
+#6  0x0000562d9514712a in std::lock_guard<std::mutex>::lock_guard (this=0x7f0f402efc00, __m=...) at /usr/include/c++/11/bits/std_mutex.h:229
+#7  0x0000562d95144593 in static_lock_function2(std::function<void ()> const&) (executor=...) at T2-PyLock/main.cpp:11
+#8  0x0000562d951447c6 in operator() (__closure=0x562d960680e0) at T2-PyLock/main.cpp:25
+#9  0x0000562d9514603e in std::__invoke_impl<void, main()::<lambda()>&>(std::__invoke_other, struct {...} &) (__f=...) at /usr/include/c++/11/bits/invoke.h:61
+#10 0x0000562d95145aa6 in std::__invoke_r<void, main()::<lambda()>&>(struct {...} &) (__fn=...) at /usr/include/c++/11/bits/invoke.h:111
+#11 0x0000562d951453e8 in std::_Function_handler<void(), main()::<lambda()> >::_M_invoke(const std::_Any_data &) (__functor=...) at /usr/include/c++/11/bits/std_function.h:290
+#12 0x0000562d95147b34 in std::function<void ()>::operator()() const (this=0x562d960680e0) at /usr/include/c++/11/bits/std_function.h:590
+#13 0x0000562d95146f31 in thread_pool::ThreadPool::execute_thread (this=0x7ffc66691260) at T2-PyLock/../03-ThreadPool/thread_pool.h:106
+#14 0x0000562d9514c401 in std::__invoke_impl<void, void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> (__f=@0x562d96067710: (void (thread_pool::ThreadPool::*)(thread_pool::ThreadPool * const)) 0x562d95146e88 <thread_pool::ThreadPool::execute_thread()>, __t=@0x562d96067708: 0x7ffc66691260) at /usr/include/c++/11/bits/invoke.h:74
+#15 0x0000562d9514c383 in std::__invoke<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> (__fn=@0x562d96067710: (void (thread_pool::ThreadPool::*)(thread_pool::ThreadPool * const)) 0x562d95146e88 <thread_pool::ThreadPool::execute_thread()>) at /usr/include/c++/11/bits/invoke.h:96
+#16 0x0000562d9514c2e3 in std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> >::_M_invoke<0ul, 1ul> (this=0x562d96067708) at /usr/include/c++/11/bits/std_thread.h:259
+#17 0x0000562d9514c298 in std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> >::operator() (this=0x562d96067708) at /usr/include/c++/11/bits/std_thread.h:266
+#18 0x0000562d9514c278 in std::thread::_State_impl<std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> > >::_M_run (this=0x562d96067700) at /usr/include/c++/11/bits/std_thread.h:211
+#19 0x00007f0f42705253 in ?? () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#20 0x00007f0f42474ac3 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:442
+#21 0x00007f0f42506850 in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:81
+
+Thread 5 (Thread 0x7f0f40af1640 (LWP 169481) "threads"):
+#0  futex_wait (private=0, expected=2, futex_word=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at ../sysdeps/nptl/futex-internal.h:146
+#1  __GI___lll_lock_wait (futex=futex@entry=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>, private=0) at ./nptl/lowlevellock.c:49
+#2  0x00007f0f42478002 in lll_mutex_lock_optimized (mutex=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at ./nptl/pthread_mutex_lock.c:48
+#3  ___pthread_mutex_lock (mutex=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at ./nptl/pthread_mutex_lock.c:93
+#4  0x0000562d9514654d in __gthread_mutex_lock (__mutex=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at /usr/include/x86_64-linux-gnu/c++/11/bits/gthr-default.h:749
+#5  0x0000562d9514660a in std::mutex::lock (this=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at /usr/include/c++/11/bits/std_mutex.h:100
+#6  0x0000562d9514712a in std::lock_guard<std::mutex>::lock_guard (this=0x7f0f40af0c00, __m=...) at /usr/include/c++/11/bits/std_mutex.h:229
+#7  0x0000562d9514450b in static_lock_function1(std::function<void ()> const&) (executor=...) at T2-PyLock/main.cpp:5
+#8  0x0000562d95144740 in operator() (__closure=0x562d96068110) at T2-PyLock/main.cpp:24
+#9  0x0000562d95145f98 in std::__invoke_impl<void, main()::<lambda()>&>(std::__invoke_other, struct {...} &) (__f=...) at /usr/include/c++/11/bits/invoke.h:61
+#10 0x0000562d95145960 in std::__invoke_r<void, main()::<lambda()>&>(struct {...} &) (__fn=...) at /usr/include/c++/11/bits/invoke.h:111
+#11 0x0000562d951452f4 in std::_Function_handler<void(), main()::<lambda()> >::_M_invoke(const std::_Any_data &) (__functor=...) at /usr/include/c++/11/bits/std_function.h:290
+#12 0x0000562d95147b34 in std::function<void ()>::operator()() const (this=0x562d96068110) at /usr/include/c++/11/bits/std_function.h:590
+#13 0x0000562d95146f31 in thread_pool::ThreadPool::execute_thread (this=0x7ffc66691260) at T2-PyLock/../03-ThreadPool/thread_pool.h:106
+#14 0x0000562d9514c401 in std::__invoke_impl<void, void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> (__f=@0x562d960675b0: (void (thread_pool::ThreadPool::*)(thread_pool::ThreadPool * const)) 0x562d95146e88 <thread_pool::ThreadPool::execute_thread()>, __t=@0x562d960675a8: 0x7ffc66691260) at /usr/include/c++/11/bits/invoke.h:74
+#15 0x0000562d9514c383 in std::__invoke<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> (__fn=@0x562d960675b0: (void (thread_pool::ThreadPool::*)(thread_pool::ThreadPool * const)) 0x562d95146e88 <thread_pool::ThreadPool::execute_thread()>) at /usr/include/c++/11/bits/invoke.h:96
+#16 0x0000562d9514c2e3 in std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> >::_M_invoke<0ul, 1ul> (this=0x562d960675a8) at /usr/include/c++/11/bits/std_thread.h:259
+#17 0x0000562d9514c298 in std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> >::operator() (this=0x562d960675a8) at /usr/include/c++/11/bits/std_thread.h:266
+#18 0x0000562d9514c278 in std::thread::_State_impl<std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> > >::_M_run (this=0x562d960675a0) at /usr/include/c++/11/bits/std_thread.h:211
+#19 0x00007f0f42705253 in ?? () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#20 0x00007f0f42474ac3 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:442
+#21 0x00007f0f42506850 in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:81
+
+Thread 4 (Thread 0x7f0f412f2640 (LWP 169480) "threads"):
+#0  futex_wait (private=0, expected=2, futex_word=0x562d95154080 <static_lock_function2(std::function<void ()> const&)::mutex2>) at ../sysdeps/nptl/futex-internal.h:146
+#1  __GI___lll_lock_wait (futex=futex@entry=0x562d95154080 <static_lock_function2(std::function<void ()> const&)::mutex2>, private=0) at ./nptl/lowlevellock.c:49
+#2  0x00007f0f42478002 in lll_mutex_lock_optimized (mutex=0x562d95154080 <static_lock_function2(std::function<void ()> const&)::mutex2>) at ./nptl/pthread_mutex_lock.c:48
+#3  ___pthread_mutex_lock (mutex=0x562d95154080 <static_lock_function2(std::function<void ()> const&)::mutex2>) at ./nptl/pthread_mutex_lock.c:93
+#4  0x0000562d9514654d in __gthread_mutex_lock (__mutex=0x562d95154080 <static_lock_function2(std::function<void ()> const&)::mutex2>) at /usr/include/x86_64-linux-gnu/c++/11/bits/gthr-default.h:749
+#5  0x0000562d9514660a in std::mutex::lock (this=0x562d95154080 <static_lock_function2(std::function<void ()> const&)::mutex2>) at /usr/include/c++/11/bits/std_mutex.h:100
+#6  0x0000562d9514712a in std::lock_guard<std::mutex>::lock_guard (this=0x7f0f412f1ae0, __m=...) at /usr/include/c++/11/bits/std_mutex.h:229
+#7  0x0000562d95144593 in static_lock_function2(std::function<void ()> const&) (executor=...) at T2-PyLock/main.cpp:11
+#8  0x0000562d951446ba in static_lock_function2_void () at T2-PyLock/main.cpp:20
+#9  0x0000562d9514b0c5 in std::__invoke_impl<void, void (*&)()> (__f=@0x7f0f412f1c40: 0x562d9514467f <static_lock_function2_void()>) at /usr/include/c++/11/bits/invoke.h:61
+#10 0x0000562d9514a45b in std::__invoke_r<void, void (*&)()> (__fn=@0x7f0f412f1c40: 0x562d9514467f <static_lock_function2_void()>) at /usr/include/c++/11/bits/invoke.h:111
+#11 0x0000562d951491de in std::_Function_handler<void (), void (*)()>::_M_invoke(std::_Any_data const&) (__functor=...) at /usr/include/c++/11/bits/std_function.h:290
+#12 0x0000562d95147b34 in std::function<void ()>::operator()() const (this=0x7f0f412f1c40) at /usr/include/c++/11/bits/std_function.h:590
+#13 0x0000562d95144517 in static_lock_function1(std::function<void ()> const&) (executor=...) at T2-PyLock/main.cpp:6
+#14 0x0000562d95144740 in operator() (__closure=0x562d96068050) at T2-PyLock/main.cpp:24
+#15 0x0000562d95145f98 in std::__invoke_impl<void, main()::<lambda()>&>(std::__invoke_other, struct {...} &) (__f=...) at /usr/include/c++/11/bits/invoke.h:61
+#16 0x0000562d95145960 in std::__invoke_r<void, main()::<lambda()>&>(struct {...} &) (__fn=...) at /usr/include/c++/11/bits/invoke.h:111
+#17 0x0000562d951452f4 in std::_Function_handler<void(), main()::<lambda()> >::_M_invoke(const std::_Any_data &) (__functor=...) at /usr/include/c++/11/bits/std_function.h:290
+#18 0x0000562d95147b34 in std::function<void ()>::operator()() const (this=0x562d96068050) at /usr/include/c++/11/bits/std_function.h:590
+#19 0x0000562d95146f31 in thread_pool::ThreadPool::execute_thread (this=0x7ffc66691260) at T2-PyLock/../03-ThreadPool/thread_pool.h:106
+#20 0x0000562d9514c401 in std::__invoke_impl<void, void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> (__f=@0x562d96067420: (void (thread_pool::ThreadPool::*)(thread_pool::ThreadPool * const)) 0x562d95146e88 <thread_pool::ThreadPool::execute_thread()>, __t=@0x562d96067418: 0x7ffc66691260) at /usr/include/c++/11/bits/invoke.h:74
+#21 0x0000562d9514c383 in std::__invoke<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> (__fn=@0x562d96067420: (void (thread_pool::ThreadPool::*)(thread_pool::ThreadPool * const)) 0x562d95146e88 <thread_pool::ThreadPool::execute_thread()>) at /usr/include/c++/11/bits/invoke.h:96
+#22 0x0000562d9514c2e3 in std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> >::_M_invoke<0ul, 1ul> (this=0x562d96067418) at /usr/include/c++/11/bits/std_thread.h:259
+#23 0x0000562d9514c298 in std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> >::operator() (this=0x562d96067418) at /usr/include/c++/11/bits/std_thread.h:266
+#24 0x0000562d9514c278 in std::thread::_State_impl<std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> > >::_M_run (this=0x562d96067410) at /usr/include/c++/11/bits/std_thread.h:211
+#25 0x00007f0f42705253 in ?? () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#26 0x00007f0f42474ac3 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:442
+#27 0x00007f0f42506850 in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:81
+
+Thread 3 (Thread 0x7f0f41af3640 (LWP 169479) "threads"):
+#0  futex_wait (private=0, expected=2, futex_word=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at ../sysdeps/nptl/futex-internal.h:146
+#1  __GI___lll_lock_wait (futex=futex@entry=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>, private=0) at ./nptl/lowlevellock.c:49
+#2  0x00007f0f42478002 in lll_mutex_lock_optimized (mutex=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at ./nptl/pthread_mutex_lock.c:48
+#3  ___pthread_mutex_lock (mutex=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at ./nptl/pthread_mutex_lock.c:93
+#4  0x0000562d9514654d in __gthread_mutex_lock (__mutex=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at /usr/include/x86_64-linux-gnu/c++/11/bits/gthr-default.h:749
+#5  0x0000562d9514660a in std::mutex::lock (this=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at /usr/include/c++/11/bits/std_mutex.h:100
+#6  0x0000562d9514712a in std::lock_guard<std::mutex>::lock_guard (this=0x7f0f41af2c00, __m=...) at /usr/include/c++/11/bits/std_mutex.h:229
+#7  0x0000562d9514450b in static_lock_function1(std::function<void ()> const&) (executor=...) at T2-PyLock/main.cpp:5
+#8  0x0000562d95144740 in operator() (__closure=0x562d96068080) at T2-PyLock/main.cpp:24
+#9  0x0000562d95145f98 in std::__invoke_impl<void, main()::<lambda()>&>(std::__invoke_other, struct {...} &) (__f=...) at /usr/include/c++/11/bits/invoke.h:61
+#10 0x0000562d95145960 in std::__invoke_r<void, main()::<lambda()>&>(struct {...} &) (__fn=...) at /usr/include/c++/11/bits/invoke.h:111
+#11 0x0000562d951452f4 in std::_Function_handler<void(), main()::<lambda()> >::_M_invoke(const std::_Any_data &) (__functor=...) at /usr/include/c++/11/bits/std_function.h:290
+#12 0x0000562d95147b34 in std::function<void ()>::operator()() const (this=0x562d96068080) at /usr/include/c++/11/bits/std_function.h:590
+#13 0x0000562d95146f31 in thread_pool::ThreadPool::execute_thread (this=0x7ffc66691260) at T2-PyLock/../03-ThreadPool/thread_pool.h:106
+#14 0x0000562d9514c401 in std::__invoke_impl<void, void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> (__f=@0x562d960672a0: (void (thread_pool::ThreadPool::*)(thread_pool::ThreadPool * const)) 0x562d95146e88 <thread_pool::ThreadPool::execute_thread()>, __t=@0x562d96067298: 0x7ffc66691260) at /usr/include/c++/11/bits/invoke.h:74
+#15 0x0000562d9514c383 in std::__invoke<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> (__fn=@0x562d960672a0: (void (thread_pool::ThreadPool::*)(thread_pool::ThreadPool * const)) 0x562d95146e88 <thread_pool::ThreadPool::execute_thread()>) at /usr/include/c++/11/bits/invoke.h:96
+#16 0x0000562d9514c2e3 in std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> >::_M_invoke<0ul, 1ul> (this=0x562d96067298) at /usr/include/c++/11/bits/std_thread.h:259
+#17 0x0000562d9514c298 in std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> >::operator() (this=0x562d96067298) at /usr/include/c++/11/bits/std_thread.h:266
+#18 0x0000562d9514c278 in std::thread::_State_impl<std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> > >::_M_run (this=0x562d96067290) at /usr/include/c++/11/bits/std_thread.h:211
+#19 0x00007f0f42705253 in ?? () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#20 0x00007f0f42474ac3 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:442
+#21 0x00007f0f42506850 in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:81
+
+Thread 2 (Thread 0x7f0f422f4640 (LWP 169478) "threads"):
+#0  futex_wait (private=0, expected=2, futex_word=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at ../sysdeps/nptl/futex-internal.h:146
+#1  __GI___lll_lock_wait (futex=futex@entry=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>, private=0) at ./nptl/lowlevellock.c:49
+#2  0x00007f0f42478002 in lll_mutex_lock_optimized (mutex=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at ./nptl/pthread_mutex_lock.c:48
+#3  ___pthread_mutex_lock (mutex=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at ./nptl/pthread_mutex_lock.c:93
+#4  0x0000562d9514654d in __gthread_mutex_lock (__mutex=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at /usr/include/x86_64-linux-gnu/c++/11/bits/gthr-default.h:749
+#5  0x0000562d9514660a in std::mutex::lock (this=0x562d95154040 <static_lock_function1(std::function<void ()> const&)::mutex>) at /usr/include/c++/11/bits/std_mutex.h:100
+#6  0x0000562d9514712a in std::lock_guard<std::mutex>::lock_guard (this=0x7f0f422f3aa0, __m=...) at /usr/include/c++/11/bits/std_mutex.h:229
+#7  0x0000562d9514450b in static_lock_function1(std::function<void ()> const&) (executor=...) at T2-PyLock/main.cpp:5
+#8  0x0000562d9514462c in static_lock_function1_void () at T2-PyLock/main.cpp:16
+#9  0x0000562d95144843 in operator() (__closure=0x7f0f422f3c40) at T2-PyLock/main.cpp:27
+#10 0x0000562d951460e4 in std::__invoke_impl<void, main()::<lambda()>::<lambda()>&>(std::__invoke_other, struct {...} &) (__f=...) at /usr/include/c++/11/bits/invoke.h:61
+#11 0x0000562d95145bec in std::__invoke_r<void, main()::<lambda()>::<lambda()>&>(struct {...} &) (__fn=...) at /usr/include/c++/11/bits/invoke.h:111
+#12 0x0000562d951454dc in std::_Function_handler<void(), main()::<lambda()>::<lambda()> >::_M_invoke(const std::_Any_data &) (__functor=...) at /usr/include/c++/11/bits/std_function.h:290
+#13 0x0000562d95147b34 in std::function<void ()>::operator()() const (this=0x7f0f422f3c40) at /usr/include/c++/11/bits/std_function.h:590
+#14 0x0000562d9514459f in static_lock_function2(std::function<void ()> const&) (executor=...) at T2-PyLock/main.cpp:12
+#15 0x0000562d95144895 in operator() (__closure=0x562d96067ff0) at T2-PyLock/main.cpp:27
+#16 0x0000562d9514618a in std::__invoke_impl<void, main()::<lambda()>&>(std::__invoke_other, struct {...} &) (__f=...) at /usr/include/c++/11/bits/invoke.h:61
+#17 0x0000562d95145d32 in std::__invoke_r<void, main()::<lambda()>&>(struct {...} &) (__fn=...) at /usr/include/c++/11/bits/invoke.h:111
+#18 0x0000562d951455d0 in std::_Function_handler<void(), main()::<lambda()> >::_M_invoke(const std::_Any_data &) (__functor=...) at /usr/include/c++/11/bits/std_function.h:290
+#19 0x0000562d95147b34 in std::function<void ()>::operator()() const (this=0x562d96067ff0) at /usr/include/c++/11/bits/std_function.h:590
+#20 0x0000562d95146f31 in thread_pool::ThreadPool::execute_thread (this=0x7ffc66691260) at T2-PyLock/../03-ThreadPool/thread_pool.h:106
+#21 0x0000562d9514c401 in std::__invoke_impl<void, void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> (__f=@0x562d96067120: (void (thread_pool::ThreadPool::*)(thread_pool::ThreadPool * const)) 0x562d95146e88 <thread_pool::ThreadPool::execute_thread()>, __t=@0x562d96067118: 0x7ffc66691260) at /usr/include/c++/11/bits/invoke.h:74
+#22 0x0000562d9514c383 in std::__invoke<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> (__fn=@0x562d96067120: (void (thread_pool::ThreadPool::*)(thread_pool::ThreadPool * const)) 0x562d95146e88 <thread_pool::ThreadPool::execute_thread()>) at /usr/include/c++/11/bits/invoke.h:96
+#23 0x0000562d9514c2e3 in std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> >::_M_invoke<0ul, 1ul> (this=0x562d96067118) at /usr/include/c++/11/bits/std_thread.h:259
+#24 0x0000562d9514c298 in std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> >::operator() (this=0x562d96067118) at /usr/include/c++/11/bits/std_thread.h:266
+#25 0x0000562d9514c278 in std::thread::_State_impl<std::thread::_Invoker<std::tuple<void (thread_pool::ThreadPool::*)(), thread_pool::ThreadPool*> > >::_M_run (this=0x562d96067110) at /usr/include/c++/11/bits/std_thread.h:211
+#26 0x00007f0f42705253 in ?? () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#27 0x00007f0f42474ac3 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:442
+#28 0x00007f0f42506850 in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:81
+
+Thread 1 (Thread 0x7f0f422f83c0 (LWP 169477) "threads"):
+#0  __futex_abstimed_wait_common64 (private=128, cancel=true, abstime=0x0, op=265, expected=169478, futex_word=0x7f0f422f4910) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=128, abstime=0x0, clockid=0, expected=169478, futex_word=0x7f0f422f4910) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7f0f422f4910, expected=169478, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=128) at ./nptl/futex-internal.c:139
+#3  0x00007f0f42476624 in __pthread_clockjoin_ex (threadid=139703511631424, thread_return=0x0, clockid=0, abstime=0x0, block=<optimized out>) at ./nptl/pthread_join_common.c:105
+#4  0x00007f0f427052c7 in std::thread::join() () from /lib/x86_64-linux-gnu/libstdc++.so.6
+#5  0x0000562d95146bde in thread_pool::ThreadPool::~ThreadPool (this=0x7ffc66691260, __in_chrg=<optimized out>) at T2-PyLock/../03-ThreadPool/thread_pool.h:44
+#6  0x0000562d95144bc5 in main () at T2-PyLock/main.cpp:35
+(gdb) 
+quit
+A debugging session is active.
+
+	Inferior 1 [process 169477] will be detached.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]
+Detaching from program: /mnt/c/Users/sildr/Desktop/dev/Formations/threads, process 169477
+[Inferior 1 (process 169477) detached]

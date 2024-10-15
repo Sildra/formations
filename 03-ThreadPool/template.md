@@ -56,11 +56,15 @@ La destruction de la `ThreadPool` doit garantir la bonne libération des ressour
 
 # Ordonnancement
 
+TODO
+
 ```cpp
 // SCHEDULE
 ```
 
 # Tests
+
+TODO
 
 ```cpp
 // UTILS
@@ -90,6 +94,8 @@ Le thread principal va aussi exécuter une partie des tâches (et permettre d'at
 ```cpp
 // TEST-GENERATOR
 ```
+
+La compilation nécessite le flag de link `-pthread`.
 
 ```bash
 > $CC -std=c++14 main.cpp -pthread -O3 -o threads.exe

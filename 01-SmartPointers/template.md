@@ -1,5 +1,3 @@
-[Sommaire](../README.md)
-
 # La mémoire
 
 ## Introduction

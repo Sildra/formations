@@ -7,8 +7,8 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 
-// JSON-SFINAE
 namespace json {
+// JSON-SFINAE
 template<typename T, typename Enable = void> struct cx
 {
     static_assert(std::is_same<T, void>::value, "Class is not elligible for json conversion");
@@ -60,9 +60,23 @@ struct cx<T, typename std::enable_if_t<is_collection_v<T> && !is_basic_string_v<
     }
 };
 
+// JSON-META-HAS_STRING_AFFINITY
+template<typename T>
+struct has_string_affinity {
+    template<typename A>
+    static constexpr bool test(A* pt, decltype(A::has_string_affinity)* pi = nullptr) {
+        return A::has_string_affinity;
+    }
+    template<typename A>
+    static constexpr bool test(...) { return false; }
+    static constexpr bool value = test<typename std::decay<T>::type>(nullptr);
+};
+template<typename T>
+static constexpr bool has_string_affinity_v = has_string_affinity<T>::value;
+
 // JSON-PAIR
 template<typename T>
-struct cx<T, typename std::enable_if_t<is_pair_v<T> && is_basic_string_v<typename T::first_type>>>
+struct cx<T, typename std::enable_if_t<is_pair_v<T> && has_string_affinity_v<json::cx<std::decay_t<typename T::first_type>>>>>
 {
     typedef std::decay_t<typename T::first_type> first_type;
     typedef std::decay_t<typename T::second_type> second_type;
@@ -82,7 +96,7 @@ struct cx<T, typename std::enable_if_t<is_pair_v<T> && is_basic_string_v<typenam
     }
 };
 template<typename T>
-struct cx<T, typename std::enable_if_t<is_pair_v<T> && !is_basic_string_v<typename T::first_type>>>
+struct cx<T, typename std::enable_if_t<is_pair_v<T> && !has_string_affinity_v<json::cx<std::decay_t<typename T::first_type>>>>>
 {
     typedef std::decay_t<typename T::first_type> first_type;
     typedef std::decay_t<typename T::second_type> second_type;
@@ -107,6 +121,7 @@ struct cx<T, typename std::enable_if_t<is_pair_v<T> && !is_basic_string_v<typena
 template<typename T>
 struct cx<T, typename std::enable_if_t<is_basic_string_v<T>>>
 {
+    static constexpr bool has_string_affinity = true;
     static inline T deserialize(rapidjson::Value& v)
     { return v.GetString(); }
     static inline void serialize(rapidjson::Value& d, rapidjson::Document::AllocatorType& a, const T& f)
@@ -150,6 +165,47 @@ struct cx<T, typename std::enable_if_t<std::is_floating_point<T>::value>>
 #include <iostream>
 #include <vector>
 #include <map>
+#include <unordered_map>
+
+// JSON-TEST_ENUM
+enum class StringTest { A, B };
+template<>
+struct json::cx<StringTest> {
+    static constexpr bool has_string_affinity = true;
+    typedef StringTest T;
+
+    static const auto& to_string_mapper() {
+        static const std::unordered_map<T, std::string> m = {
+            { StringTest::A, "A" },
+            { StringTest::B, "B" },
+        };
+        return m;
+    } 
+    static const auto& from_string_mapper() {
+        static const auto m = []() {
+            std::unordered_map<std::string, T> r;
+            for (const auto& m_ : to_string_mapper())
+                r.insert( { m_.second, m_.first } );
+            return r;
+        }();
+        return m;
+    }
+    static T map(const std::string& value) {
+        const auto& m = from_string_mapper();
+        auto f = m.find(value);
+        return (f != m.end() ? f->second : m.begin()->second);
+    }
+    static const std::string& map(T value) {
+        const auto& m = to_string_mapper();
+        auto f = m.find(value);
+        return (f != m.end() ? f->second : m.begin()->second);
+    }
+
+    static inline T deserialize(rapidjson::Value& v)
+    { return map(v.GetString()); }
+    static inline void serialize(rapidjson::Value& d, rapidjson::Document::AllocatorType& a, const T& f)
+    { const auto& v = map(f); d = rapidjson::StringRef(v.c_str(), v.size()); }
+};
 
 // JSON-TEST
 template<typename T>
@@ -173,6 +229,10 @@ void test_json()
         { { { 0, 1, 2 }, { "A", "B", "C" } } ,
           { { 42 }, { "Universe" } },
         });
+
+    json_test("std::map<StringTest, int>",
+        std::map<StringTest, int> { { StringTest::A, 0 }, { StringTest::B, 1 } }
+    );
 }
 // END
 #endif /* !META_TEST */
