@@ -59,9 +59,10 @@ def process_dir(dirname):
                 for snip in snippets[comment.group(2)]:
                     markdown.write(space + snip + '\n')
                 continue
-            executor = re.match(r'^> (.*)$', line)
+            executor = re.match(r'^>!? (.*)$', line)
             if executor:
-                markdown.write(line)
+                if line[1] != '!':
+                    markdown.write(line)
                 execute(dirname, executor.group(1), markdown)
                 continue
             markdown.write(line)

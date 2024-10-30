@@ -1,3 +1,6 @@
 [submodule "04-MetaJson/rapidjson"]
 	path = 04-MetaJson/rapidjson
 	url = https://github.com/Tencent/rapidjson.git
+[submodule "T4-Introspector/pfr"]
+	path = T4-Introspector/pfr
+	url = https://github.com/boostorg/pfr.git
