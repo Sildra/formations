@@ -1,21 +1,23 @@
 #include "introspector.h"
 
-struct person {
+// SIMPLE_DATA
+struct Product {
     std::string name;
-    uint32_t birth_year = 1900;
+    uint32_t quantity = 0;
 };
 
-struct family {
-    person father;
-    person mother;
-    person son;
-    std::vector<int> toto;
+struct Fruits {
+    Product apples;
+    Product oranges;
+    Product bananas;
+    std::vector<Product> others;
 };
 
+// INTROSPECTOR_USE
 int main() {
-    family my_family { { "Edgard", 1809 }, { "Edgarette", 1830 }, { "Edgaron", 1845 } };
+    Fruits my_shop { { "Apple", 200 }, { "Orange", 70 }, { "Banana", 80 } };
 
-    TreeElementPrinter::visit(introspect(my_family));
+    TreeElementPrinter::visit(introspect(my_shop));
 
     return 0;
 }

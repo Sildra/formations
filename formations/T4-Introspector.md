@@ -1,11 +1,11 @@
-#include <iostream>
-#include <type_traits>
-#include <format>
+[Sommaire](../README.md)
 
-#include "boost/pfr.hpp"
-#include "../Tools/utils.h"
 
-// INTROSPECTOR_TREE
+# Tree
+
+## Structure
+
+```cpp
 struct TreeElement {
     std::string type;
     std::string field;
@@ -14,8 +14,11 @@ struct TreeElement {
     size_t offset = 0;
     std::vector<std::unique_ptr<TreeElement>> members;
 };
+```
 
-// INTROSPECTOR_TREE_VISITOR
+## Visitor
+
+```cpp
 struct TreeElementVisitor {
     static void visit(const TreeElement& element, TreeElementVisitor& visitor) {
         visitor.visit_(element);
@@ -42,8 +45,11 @@ struct TreeElementPrinter : public TreeElementVisitor {
         --current_level;
     }
 };
+```
 
-// INTROSPECTOR_PRETTY_CLASS
+## Tree helper
+
+```cpp
 template<typename T>
 void fill_element(TreeElement& element, const T& value) {
     element.type = get_class_name<T>();
@@ -69,8 +75,13 @@ PRETTY_FILL_ELEMENT(uint32_t, "uint32_t", std::to_string(value));
 PRETTY_FILL_ELEMENT(uint64_t, "uint64_t", std::to_string(value));
 PRETTY_FILL_ELEMENT(std::string, "std::string", value);
 #undef PRETTY_FILL_ELEMENT
+```
 
-// INTROSPECTOR_SCALAR
+# Introspection
+
+## Scalar
+
+```cpp
 template<typename T, typename Enable = void>
 struct introspection {
     template<size_t I>
@@ -79,8 +90,9 @@ struct introspection {
         fill_element(node, value);
     }
 };
+```
 
-// INTROSPECTOR_CLASS_UNFOLD
+```cpp
 template<typename T, size_t... I>
 static void unfold_impl(const T& value, TreeElement& node, std::index_sequence<I...>) {
     (introspection<T>::template introspect_member<I>(value, node), ...);
@@ -89,8 +101,9 @@ template<typename T>
 void unfold_type(const T& value, TreeElement& node) {
     unfold_impl(value, node, std::make_index_sequence<boost::pfr::tuple_size_v<T>>{});
 }
+```
 
-// INTROSPECTOR_CLASS
+```cpp
 template<typename T>
 struct introspection<T , typename std::enable_if_t<std::is_aggregate_v<T>>> {
     template<size_t I>
@@ -106,11 +119,60 @@ struct introspection<T , typename std::enable_if_t<std::is_aggregate_v<T>>> {
         unfold_type(value, node);
     }
 };
+```
 
-// INTROSPECTOR_MAIN
+```cpp
 template<typename T>
 TreeElement introspect(const T& value) {
     TreeElement result { .field = "root" };
     introspection<T>::introspect(value, result);
     return result;
 }
+```
+
+# Main
+
+
+```cpp
+struct Product {
+    std::string name;
+    uint32_t quantity = 0;
+};
+
+struct Fruits {
+    Product apples;
+    Product oranges;
+    Product bananas;
+    std::vector<Product> others;
+};
+```
+
+```cpp
+int main() {
+    Fruits my_shop { { "Apple", 200 }, { "Orange", 70 }, { "Banana", 80 } };
+
+    TreeElementPrinter::visit(introspect(my_shop));
+
+    return 0;
+}
+```
+
+
+
+```bash
+> $CC --std=c++20 -Ipfr/include main.cpp -o introspector.exe
+```
+
+```text
+Fruits root = 0x75308ffc50 : 144
+  Product apples = 0x75308ffc50 : 40
+    std::string name = Apple : 32
+    uint32_t quantity = 200 : 4
+  Product oranges = 0x75308ffc78 : 40
+    std::string name = Orange : 32
+    uint32_t quantity = 70 : 4
+  Product bananas = 0x75308ffca0 : 40
+    std::string name = Banana : 32
+    uint32_t quantity = 80 : 4
+  vector others = 0x75308ffcc8 : 24
+```
