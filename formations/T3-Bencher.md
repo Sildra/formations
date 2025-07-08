@@ -35,7 +35,7 @@ static Result filterSetToVector(const std::vector<T>& source) {
 }
 ```
 
-L'utilisation d'un `shared_ptr` est relativement simple. Dans notre cas, nous allons juste mettre le résultat du filtre dans le test et faire une copie di `shared_ptr`.
+L'utilisation d'un `shared_ptr` est relativement simple. Dans notre cas, nous allons juste mettre le résultat du filtre dans le test et faire une copie de `shared_ptr`.
 
 
 Le template de test se présente sous cette forme.
@@ -48,15 +48,23 @@ std::string left_pad(int size, T value) {
     return result.replace(std::max<size_t>(0, size - v.size()), v.size(), v);
 }
 
+std::string right_pad(int size, const std::string& value) {
+    std::string result = value;
+    result.resize(size, ' ');
+    return result;
+}
+template<typename T>
+std::string describe_test(const std::vector<T>& data) {
+    auto uniques = filterVector(data).size();
+    return right_pad(15, get_class_name<T>() + ",")
+        + " S:  " + left_pad(4, data.size())
+        + ", U: " + left_pad(4, uniques)
+        + ", D: " + left_pad(4, data.size() - uniques);
+}
+
 template<typename Bencher, typename T>
 void test(Bencher& benchmark, const std::vector<T>& data) {
-    std::string testRow = [&]() {
-            auto uniques = filterVector(data).size();
-            return get_class_name<T>()
-                + ", S:  " + left_pad(4, data.size())
-                + ", U: " + left_pad(4, uniques)
-                + ", D: " + left_pad(4, data.size() - uniques);
-        }();
+    std::string testRow = describe_test(data);
     benchmark.bench(testRow, "Shared", [&](auto& state) {
             auto shared = std::make_shared<std::vector<T>>(filterVector(data));
             for (auto _ : state) {
@@ -143,9 +151,9 @@ int main() {
     test(benchmark, create_data(500, [](){ return BigStr(rand() % 400); }));
     test(benchmark, create_data(30, [](){ return rand() % 10; }));
     test(benchmark, create_data(30, [](){ return rand() % 5000; }));
-    test(benchmark, create_data(500, [](){ return rand() % 5000; }));
     test(benchmark, create_data(500, [](){ return rand() % 100; }));
-    benchmark.display();
+    test(benchmark, create_data(500, [](){ return rand() % 5000; }));
+    bencher::Formatter::display(benchmark.get_results());
 
     return 0;
 }
@@ -160,16 +168,16 @@ int main() {
 ```bash
 > $CC --std=c++17 -O3 vector_dup.cpp -o vector_dup.exe
 ```
-|                                          | Set     | SetDup | Shared | Unordered | UnorderedDup | Vector  | VectorDup |
-| ---------------------------------------- | ------- | ------ | ------ | --------- | ------------ | ------- | --------- |
-| BigStr, S:    50, U:   24, D:   26       |   778ms~|  307ms |    1ms |     461ms |        356ms |   772ms~|     148ms |
-| BigStr, S:    50, U:   36, D:   14       |   942ms~| 1100ms~|    1ms |     618ms~|       1186ms~|  1092ms~|     558ms~|
-| BigStr, S:   100, U:   45, D:   55       |  1323ms~|  899ms~|    1ms |    1232ms~|        689ms~|  1919ms~|     266ms |
-| BigStr, S:   500, U:  288, D:  212       | 10005ms~| 5806ms~|    1ms |    7133ms~|       6044ms~| 30722ms~|    2063ms~|
-| basic_string, S:    50, U:   26, D:   24 |   606ms~|  182ms |    1ms |     565ms~|        184ms |   247ms |      11ms |
-| basic_string, S:    50, U:   29, D:   21 |   653ms~|  209ms |    1ms |     574ms~|        195ms |   305ms |      13ms |
-| basic_string, S:   100, U:   46, D:   54 |   914ms~|  652ms~|    1ms |     712ms~|        623ms~|   609ms~|      16ms |
-| int, S:    30, U:    9, D:   21          |    74ms |   60ms |    1ms |      86ms |         67ms |    46ms |       5ms |
-| int, S:    30, U:   30, D:    0          |   265ms |  214ms |    1ms |     216ms |        527ms~|    94ms |      12ms |
-| int, S:   500, U:   97, D:  403          |  2158ms~| 1322ms~|    1ms |    1217ms~|       1231ms~|   298ms |       6ms |
-| int, S:   500, U:  483, D:   17          |  8063ms~| 4309ms~|    1ms |    5534ms~|       4216ms~|  1331ms~|       7ms |
+|                                            | Shared | Vector  | VectorDup | Set    | SetDup | Unordered | UnorderedDup |
+| ------------------------------------------ | ------ | ------- | --------- | ------ | ------ | --------- | ------------ |
+| basic_string,   S:    50, U:   26, D:   24 |    1ms |   232ms |      12ms |  577ms~|  180ms |     556ms~|        196ms |
+| basic_string,   S:    50, U:   29, D:   21 |    1ms |   257ms |      12ms |  608ms~|  504ms |     551ms~|        196ms |
+| basic_string,   S:   100, U:   46, D:   54 |    1ms |   640ms~|      16ms |  881ms~|  612ms~|     365ms |        606ms~|
+| BigStr,         S:    50, U:   24, D:   26 |    1ms |   808ms~|     462ms |  756ms~|  900ms~|     459ms |        664ms~|
+| BigStr,         S:    50, U:   36, D:   14 |    1ms |  1515ms~|     221ms |  921ms~| 1045ms~|     611ms~|       1138ms~|
+| BigStr,         S:   100, U:   45, D:   55 |    1ms |  1918ms~|     264ms | 1286ms~|  874ms~|    1195ms~|        676ms~|
+| BigStr,         S:   500, U:  288, D:  212 |    1ms | 32131ms~|    2003ms~| 9557ms~| 5295ms~|    7077ms~|       5581ms~|
+| int,            S:    30, U:    9, D:   21 |    1ms |    46ms |       5ms |   80ms |   60ms |     413ms |         68ms |
+| int,            S:    30, U:   30, D:    0 |    1ms |    77ms |       5ms |  216ms |  510ms |     522ms~|        194ms |
+| int,            S:   500, U:   99, D:  401 |    1ms |   310ms |       6ms | 1974ms~| 1281ms~|    1520ms~|       1229ms~|
+| int,            S:   500, U:  479, D:   21 |    1ms |  1323ms~|       7ms | 7835ms~| 4192ms~|    5870ms~|       4375ms~|

@@ -102,7 +102,7 @@ void benchSharedPtrVsVectorDuplication() {
                     return;
             }
         });
-    benchmark.display();
+    bencher::Formatter::display(benchmark.get_results());
 }
 
 int main() {

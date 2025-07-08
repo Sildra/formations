@@ -221,10 +221,10 @@ Thread 1 Display()
 Thread 2 Display()
 Thread 3 Display2()
 Thread 4 Display()
-Thread 1 Display2()
-Thread 3 Display()
+Thread 3 Display2()
+Thread 1 Display()
 Thread 2 Display()
-986410 tasks executed in 471ms
+986410 tasks executed in 550ms
 End ThreadPool
 ```
 

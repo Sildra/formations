@@ -30,7 +30,7 @@ static constexpr bool is_basic_string_v = is_basic_string<T>::value;
 
 ```bash
 > $CC -std=c++14 -DMETA_TEST -Irapidjson/include *.cpp -o meta.exe 2>&1 | grep ' C++'
-./meta.h:6:10: warning: C++14 [-W#pragma-messages]
+.\meta.h:6:10: warning: C++14 [-W#pragma-messages]
 ```
 ## C++17
 
@@ -46,7 +46,7 @@ static constexpr bool is_basic_string_v<T, std::void_t<decltype(std::declval<T>(
 
 ```bash
 > $CC -std=c++17 -DMETA_TEST -Irapidjson/include *.cpp -o meta.exe 2>&1 | grep ' C++'
-./meta.h:22:10: warning: C++17 [-W#pragma-messages]
+.\meta.h:22:10: warning: C++17 [-W#pragma-messages]
 ```
 
 ## C++20
@@ -60,7 +60,7 @@ concept is_basic_string_v = requires(T a) { a.c_str(); }
 
 ```bash
 > $CC -std=c++20 -DMETA_TEST -Irapidjson/include *.cpp -o meta.exe 2>&1 | grep ' C++'
-./meta.h:30:10: warning: C++20 [-W#pragma-messages]
+.\meta.h:30:10: warning: C++20 [-W#pragma-messages]
 ```
 
 ## Les collections
